@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Nested Checkbox</title>
+   <style>
+       body {
+           font-family: Arial, sans-serif;
+           padding: 20px;
+       }
+       .category {
+           margin-top: 10px;
+       }
+       .items {
+           margin-left: 20px;
+       }
+       label {
+           display: block;
+           cursor: pointer;
+       }
+   </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Nested Checkbox Component</h2>
+        
+        <div class="select-all">
+            <label>
+                <input type="checkbox" id="selectAll">
+                Select All
+            </label>
+        </div>
+        
+        <div class="category">
+            <div class="category-header">
+                <label>
+                    <input type="checkbox" class="category-checkbox" data-category="fruits">
+                    Fruits
+                </label>
+            </div>
+            <div class="items">
+                <label><input type="checkbox" class="fruit"> Apple</label>
+                <label><input type="checkbox" class="fruit"> Banana</label>
+                <label><input type="checkbox" class="fruit"> Orange</label>
+            </div>
+        </div>
+        
+        <div class="category">
+            <div class="category-header">
+                <label>
+                    <input type="checkbox" class="category-checkbox" data-category="vegetables">
+                    Vegetables
+                </label>
+            </div>
+            <div class="items">
+                <label><input type="checkbox" class="vegetable"> Carrot</label>
+                <label><input type="checkbox" class="vegetable"> Broccoli</label>
+                <label><input type="checkbox" class="vegetable"> Potato</label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const selectAll = document.getElementById("selectAll");
+        const categoryCheckboxes = document.querySelectorAll(".category-checkbox");
+        const fruits = document.querySelectorAll(".fruit");
+        const vegetables = document.querySelectorAll(".vegetable");
+        const allItems = [...fruits, ...vegetables];
+
+        // Select All functionality
+        selectAll.addEventListener("change", (e) => {
+            const checked = e.target.checked;
+            // Check/uncheck all category checkboxes and items
+            [...categoryCheckboxes, ...allItems].forEach(cb => {
+                cb.checked = checked;
+            });
+        });
+
+        // Category checkbox functionality
+        categoryCheckboxes.forEach(cb => {
+            cb.addEventListener("change", (e) => {
+                const category = e.target.dataset.category;
+                const checked = e.target.checked;
+                
+                // Check/uncheck all items in this category
+                if (category === "fruits") {
+                    fruits.forEach(fruit => fruit.checked = checked);
+                } else if (category === "vegetables") {
+                    vegetables.forEach(vegetable => vegetable.checked = checked);
+                }
+                
+                // Update Select All state
+                updateSelectAll();
+            });
+        });
+
+        // Individual item functionality
+        allItems.forEach(cb => {
+            cb.addEventListener("change", () => {
+                // Update category state based on its items
+                updateCategoryState("fruits", fruits);
+                updateCategoryState("vegetables", vegetables);
+                
+                // Update Select All state
+                updateSelectAll();
+            });
+        });
+
+        function updateCategoryState(category, items) {
+            const categoryBox = document.querySelector(`.category-checkbox[data-category="${category}"]`);
+            const allChecked = [...items].every(item => item.checked);
+            const someChecked = [...items].some(item => item.checked);
+            
+            categoryBox.checked = allChecked;
+            // Set indeterminate state if some but not all items are checked
+            categoryBox.indeterminate = someChecked && !allChecked;
+        }
+
+        function updateSelectAll() {
+            const allChecked = allItems.every(item => item.checked);
+            const someChecked = allItems.some(item => item.checked);
+            
+            selectAll.checked = allChecked;
+            // Set indeterminate state if some but not all items are checked
+            selectAll.indeterminate = someChecked && !allChecked;
+        }
+
+        // Initialize states on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            updateCategoryState("fruits", fruits);
+            updateCategoryState("vegetables", vegetables);
+            updateSelectAll();
+        });
+    </script>
+</body>
+</html>
